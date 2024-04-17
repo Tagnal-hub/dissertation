@@ -20,28 +20,28 @@ gen deprived = cond(half == 1, 1, 0)
 la var deprived "subcounty has low mean wealth factor score"
 
 
-drop if anc_visits == 0 & facilitydelivery == 0
+\\drop if anc_visits == 0 & facilitydelivery == 0
 
 ****
 ***Balance tables
 ****
 
 *Cutoff is bottom quartile
-iebaltab rural v133 v191 v201 mother_age male b5 policy m14 age_months mstunted mwasted mmalnourished, groupvar(concentration) rowvar savetex(./tables/baltab_quartile_og.tex) texnotefile(./table/baltab_quartile_og_note.tex) replace
+iebaltab rural education windex parity motherage male childalive policy ancn agemonths mstunted mwasted mmalnourished, groupvar(concentration) rowvar savetex(./tables/baltab_quartile_og.tex) texnotefile(./table/baltab_quartile_og_note.tex) replace
 
-iebaltab rural v133 v191 v201 mother_age male b5 policy m14 age_months mstunted mwasted mmalnourished, groupvar(concentration) rowvar savetex(.table/baltab_quartile_ancdel.tex) texnotefile(./table/baltab_quartile_ancdel_note.tex) replace
+iebaltab rural v133 v191 v201  male b5 policy m14 age_months mstunted mwasted mmalnourished, groupvar(concentration) rowvar savetex(.table/baltab_quartile_ancdel.tex) texnotefile(./table/baltab_quartile_ancdel_note.tex) replace
 
 
 ****
 *** Intermediate outcomes
 ****
 
-reg anc_visits concentration##policy rural v201 i.age_groups i.v106 i.v190 male i.b1 i.b2 i.dcounty i.dsubcounty, cluster(dsubcounty)
+reg ancn concentration##policy rural v201 i.age_groups i.v106 i.v190 male i.b1 i.b2 i.dcounty i.dsubcounty, cluster(dsubcounty)
 estimates store anc1, title (anc visits)
 reg facilitydelivery concentration##policy rural v201 i.age_groups i.v106 i.v190 male i.b1 i.b2 i.dcounty i.dsubcounty, cluster(dsubcounty)
 estimates store del1, title(delivery)
 
-reg anc_visits concentration##policy rural v201 i.age_groups i.v106 i.v190 male i.b1 i.b2 i.dcounty i.dsubcounty if deprived == 1, cluster(dsubcounty)
+reg ancn concentration##policy rural v201 i.age_groups i.v106 i.v190 male i.b1 i.b2 i.dcounty i.dsubcounty if deprived == 1, cluster(dsubcounty)
 estimates store anc2, title(anc visits)
 reg facilitydelivery concentration##policy rural v201 i.age_groups i.v106 i.v190 male i.b1 i.b2 i.dcounty i.dsubcounty if deprived == 1, cluster(dsubcounty)
 estimates store del2, title(delivery)
