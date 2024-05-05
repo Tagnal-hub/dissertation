@@ -561,7 +561,7 @@ kdensity <- ggplot(lq) +
     aes(x = subcountyhhi2015, color = "2015")) +
   geom_density(
     aes(x = subcountyhhi2020, color = "2020")) +
-  labs(title = "Kernel Density Plot of subcountyhhi",
+  labs(title = "Kernel Density Plot of subcounty HHI",
        x = "subcountyhhi",
        y = "Density") +
   theme_minimal() +
@@ -584,7 +584,9 @@ lqmap <- ggplot(lq) +
   geom_sf(aes(fill = lq2015)) +
   scale_fill_gradientn(
     colors = brewer.pal(9, "Blues")
-  )
+  ) +
+  labs(title = "Location Quotient")
+  theme_minimal()
   
 
 # DHS Cleaning ----
@@ -644,7 +646,12 @@ dhsbirths <- read_dta() |> # read file
   # Find the age of the mother
   rowwise() |>
   mutate(
-    motherage = v012 - round(agemonths/12) 
+    motherage = v012 - round(agemonths/12),
+    age_groups = case_when(
+      motherage < 20 ~ "Teenager",
+      motherage < 35 ~ "20-35",
+      TRUE ~ "35+"
+    )
   ) |>
   ungroup() |>
     
@@ -816,98 +823,98 @@ mutate(
 
 anc1 <- lm(ancn ~ concentration:policy + rural + parity + 
           + factor(v106) + factor(v190) + male + factor(age_groups) +
-           + factor(b1) + factor(b2) + factor(dcounty) + 
-             factor(dsubcounty), data = merged)
+           + factor(b1) + factor(b2) + factor(county) + 
+             factor(subcounty), data = merged)
 
 del1 <- lm(facilitydelivery ~ concentration:policy + rural + parity + 
              + factor(v106) + factor(v190) + male + factor(age_groups) +
-           + factor(b1) + factor(b2) + factor(dcounty) + 
-             factor(dsubcounty), data = merged)
+           + factor(b1) + factor(b2) + factor(county) + 
+             factor(subcounty), data = merged)
 
-anc2 <- lm(ancn ~ concentration:policy + rural + v201 +
+anc2 <- lm(ancn ~ concentration:policy + rural + parity +
              factor(age_groups) + factor(v106) + factor(v190) +
-             male + factor(b1) + factor(b2) + factor(dcounty) +
-             factor(dsubcounty), 
+             male + factor(b1) + factor(b2) + factor(county) +
+             factor(subcounty), 
            data= subset(merged, deprived == 1))
 
-del2 <- lm(facilitydelivery ~ concentration:policy + rural + v201 +
+del2 <- lm(facilitydelivery ~ concentration:policy + rural + parity +
              factor(age_groups) + factor(v106) + factor(v190) +
-             male + factor(b1) + factor(b2) + factor(dcounty) +
-             factor(dsubcounty), 
+             male + factor(b1) + factor(b2) + factor(county) +
+             factor(subcounty), 
            data= subset(merged, deprived == 1))
 
 ## Scores ----
 
 haz <- lm(hw70 ~ concentration:policy + rural + factor(age_groups) +
             factor(v106) + factor(v190) + v440 + male + agemonths
-          + bord + factor(b1) + factor(b2) + factor(dcounty) + factor(dsubcounty),
+          + bord + factor(b1) + factor(b2) + factor(county) + factor(subcounty),
           data = merged)
 
 waz <- lm(hw71 ~ concentration:policy + rural + factor(age_groups) +
             factor(v106) + factor(v190) + v440 + male + agemonths
-          + bord + factor(b1) + factor(b2) + factor(dcounty) + factor(dsubcounty),
+          + bord + factor(b1) + factor(b2) + factor(county) + factor(subcounty),
           data = merged)
 
 whz <- lm(hw72 ~ concentration:policy + rural + factor(age_groups) +
             factor(v106) + factor(v190) + v440 + male + agemonths
-          + bord + factor(b1) + factor(b2) + factor(dcounty) + factor(dsubcounty),
+          + bord + factor(b1) + factor(b2) + factor(county) + factor(subcounty),
           data = merged)
 
 
 haz1 <- lm(hw70 ~ concentration:policy + rural + factor(age_groups) +
             factor(v106) + factor(v190) + v440 + male + agemonths
-          + bord + factor(b1) + factor(b2) + factor(dcounty) + factor(dsubcounty),
+          + bord + factor(b1) + factor(b2) + factor(county) + factor(subcounty),
           data = subset(merged, deprived == 1))
 
 waz1 <- lm(hw71 ~ concentration:policy + rural + factor(age_groups) +
             factor(v106) + factor(v190) + v440 + male + agemonths
-          + bord + factor(b1) + factor(b2) + factor(dcounty) + factor(dsubcounty),
+          + bord + factor(b1) + factor(b2) + factor(county) + factor(subcounty),
           data = subset(merged, deprived == 1))
 
 whz1 <- lm(hw72 ~ concentration:policy + rural + factor(age_groups) +
             factor(v106) + factor(v190) + v440 + male + agemonths
-          + bord + factor(b1) + factor(b2) + factor(dcounty) + factor(dsubcounty),
+          + bord + factor(b1) + factor(b2) + factor(county) + factor(subcounty),
           data = subset(merged, deprived == 1))
 
 ## Malnutrition ----
 
-stunted <- reg(cstunted ~ concentration:policy + rural + factor(age_groups) +
-                 factor(v106) + factor(v190) + mstunted + male + age_months +
-                 bord + factor(b1) + factor(b2) + factor(dcounty) + factor(dsubcounty),
+stunted <- lm(cstunted ~ concentration:policy + rural + factor(age_groups) +
+                 factor(v106) + factor(v190) + mstunted + male + agemonths +
+                 bord + factor(b1) + factor(b2) + factor(county) + factor(subcounty),
                data = merged)
 
-underweight <- reg(cunderweight ~ concentration:policy + rural + factor(age_groups) +
-                 factor(v106) + factor(v190) + munderweight + male + age_months +
-                 bord + factor(b1) + factor(b2) + factor(dcounty) + factor(dsubcounty),
+underweight <- lm(cunderweight ~ concentration:policy + rural + factor(age_groups) +
+                 factor(v106) + factor(v190) + munderweight + male + agemonths +
+                 bord + factor(b1) + factor(b2) + factor(county) + factor(subcounty),
                data = merged)
 
-overweight <- reg(coverweight ~ concentration:policy + rural + factor(age_groups) +
-                 factor(v106) + factor(v190) + moverweight + male + age_months +
-                 bord + factor(b1) + factor(b2) + factor(dcounty) + factor(dsubcounty),
+overweight <- lm(coverweight ~ concentration:policy + rural + factor(age_groups) +
+                 factor(v106) + factor(v190) + moverweight + male + agemonths +
+                 bord + factor(b1) + factor(b2) + factor(county) + factor(subcounty),
                data = merged)
 
-wasted <- reg(cwasted ~ concentration:policy + rural + factor(age_groups) +
-                 factor(v106) + factor(v190) + mwasted + male + age_months +
-                 bord + factor(b1) + factor(b2) + factor(dcounty) + factor(dsubcounty),
+wasted <- lm(cwasted ~ concentration:policy + rural + factor(age_groups) +
+                 factor(v106) + factor(v190) + mwasted + male + agemonths +
+                 bord + factor(b1) + factor(b2) + factor(county) + factor(subcounty),
                data = merged)
 
 
-stunted1 <- reg(cstunted ~ concentration:policy + rural + factor(age_groups) +
-                 factor(v106) + factor(v190) + mstunted + male + age_months +
-                 bord + factor(b1) + factor(b2) + factor(dcounty) + factor(dsubcounty),
+stunted1 <- lm(cstunted ~ concentration:policy + rural + factor(age_groups) +
+                 factor(v106) + factor(v190) + mstunted + male + agemonths +
+                 bord + factor(b1) + factor(b2) + factor(county) + factor(subcounty),
                data = subset(merged, deprived == 1))
 
-underweight1 <- reg(cunderweight ~ concentration:policy + rural + factor(age_groups) +
-                     factor(v106) + factor(v190) + munderweight + male + age_months +
-                     bord + factor(b1) + factor(b2) + factor(dcounty) + factor(dsubcounty),
+underweight1 <- lm(cunderweight ~ concentration:policy + rural + factor(age_groups) +
+                     factor(v106) + factor(v190) + munderweight + male + agemonths +
+                     bord + factor(b1) + factor(b2) + factor(county) + factor(subcounty),
                    data = subset(merged, deprived == 1))
 
-overweight1 <- reg(coverweight ~ concentration:policy + rural + factor(age_groups) +
-                    factor(v106) + factor(v190) + moverweight + male + age_months +
-                    bord + factor(b1) + factor(b2) + factor(dcounty) + factor(dsubcounty),
+overweight1 <- lm(coverweight ~ concentration:policy + rural + factor(age_groups) +
+                    factor(v106) + factor(v190) + moverweight + male + agemonths +
+                    bord + factor(b1) + factor(b2) + factor(county) + factor(subcounty),
                   data = subset(merged, deprived == 1))
 
-wasted1 <- reg(cwasted ~ concentration:policy + rural + factor(age_groups) +
-                factor(v106) + factor(v190) + mwasted + male + age_months +
-                bord + factor(b1) + factor(b2) + factor(dcounty) + factor(dsubcounty),
+wasted1 <- lm(cwasted ~ concentration:policy + rural + factor(age_groups) +
+                factor(v106) + factor(v190) + mwasted + male + agemonths +
+                bord + factor(b1) + factor(b2) + factor(county) + factor(subcounty),
               data = subset(merged, deprived == 1))
